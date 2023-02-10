@@ -98,10 +98,9 @@ df %>% head()
 
 # To calculate number of rows dropped
 r_drop <- nrow(abalone) - nrow(df)
-r_drop
 ```
 
-The number of rows dropped were 0.
+> The number of rows dropped were 0.
 
 ------------------------------------------------------------------------
 
@@ -122,9 +121,9 @@ plt
 
 ##### 1.4 (5 points)
 
-Create a boxplot of `length` for each `sex` and create a violin-plot of
+Create a box plot of `length` for each `sex` and create a violin-plot of
 of `diameter` for each `sex`. Are there any notable differences in the
-physical appearences of abalones based on your analysis here?
+physical appearances of abalones based on your analysis here?
 
 ```{r}
 plt2 <- ggplot(df, aes(x = sex, y = length)) + geom_boxplot()
@@ -136,6 +135,14 @@ plt3 <- ggplot(df, aes(x = sex, y = diameter)) + geom_violin()
 plt3
 ```
 
+> In the box plot, we can see that the median length of the abalones is
+> similar for all three sex categories. In the violin plot, we can see
+> that the median diameter is similar for all three sex categories and
+> the distribution of diameter is slightly wider for the $I$ category as
+> compared to the $M$ and $F$ categories. Hence, we can see that there
+> are some differences in the physical appearances of the abalones based
+> on sex, but there aren't any substantial differences.
+
 ------------------------------------------------------------------------
 
 ###### 1.5 (5 points)
@@ -146,9 +153,11 @@ each point based on the `shell_wight` value for each observation. Are
 there any notable anomalies in the dataset?
 
 ```{r}
-plt4 <- ggplot(df, aes(x = length, y = diameter, color = sex)) + geom_point()
+plt4 <- ggplot(df, aes(x = length, y = diameter, color = sex, size = shell_weight)) + geom_point() + ggtitle("Scatter Plot of Length vs Diameter with color and size varying by Sex and Shell Weight")
 plt4
 ```
+
+> The plot does not show any notable anomalies in the data.
 
 ------------------------------------------------------------------------
 
@@ -266,16 +275,7 @@ grid of plots.
 :::
 
 ```{r}
-quant_vars <- names(df) %>%
-  select_if(is.numeric) %>%
-  set_names(paste0("Quantitative Variable: ",.))
 
-scatter_plots <- quant_vars %>%
-  map2(quant_vars, ~{
-    ggplot(df, aes_string(x = .x, y = "rings", color = "sex")) + geom_point() + labs(x = .y, y = "Number of Rings")
-  })
-
-cowplot::plot_grid(plotlist = scatter_plots, ncol = 2)
 ```
 
 <br><br><br><br> <br><br><br><br> ---
@@ -297,8 +297,17 @@ Perform a simple linear regression with `diameter` as the covariate and
 significance values.
 
 ```{r}
-
+model <- lm(height ~ diameter, data = df)
+summary(model)
 ```
+
+> The intercept of the model is 0.4899 and the coefficient for the
+> diameter variable is 7.8814. The $p$-value for the diameter variable
+> is 2.2e-16 which is extremely small. Based on the coefficients and
+> significance values, we can infer that the diameter of an abalone has
+> a positive and significant effect on its height. For every increase in
+> 1 cm of diameter, the height of an abalone increases by approximately
+> 7.88cm.
 
 ------------------------------------------------------------------------
 
@@ -310,8 +319,14 @@ this. Is the linear model an appropriate fit for this relationship?
 Explain.
 
 ```{r}
-
+plt6 <- ggplot(df, aes(x = diameter, y = height)) + geom_point() + geom_smooth(method = "lm", color = "red")
+plt6
 ```
+
+> The linear model is an appropriate fit for the relationship between
+> height and diameter. The data points are around the regression line,
+> and hence, indicates a strong linear relationship between the two
+> variables.
 
 ------------------------------------------------------------------------
 
@@ -337,6 +352,10 @@ new_diameters <- c(
   0.01209518
 )
 
+# To predict the new heights
+new_heights <- predict(model, newdata = data.frame(diameter = new_diameters))
+
+# Plotting new observations and their predicted heights along with the original scatterplot
 
 ```
 
