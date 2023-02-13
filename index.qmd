@@ -113,8 +113,12 @@ Plot histograms of all the quantitative variables in a **single plot**
     its documentation using the help console in R
 
 ```{r}
-plt <- ggplot(df, aes(x = length)) + geom_histogram(bins = 30)
-plt
+df %>%
+  select(!sex) %>%
+  gather() %>%
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") + 
+  geom_histogram()
 ```
 
 ------------------------------------------------------------------------
@@ -174,7 +178,10 @@ horizontally. You should end up with a plot that looks like this: [^2]
     when-format="html"}
 
 ```{r}
-plt5 <- ggplot(df, aes(x = length, y = diameter)) + geom_point(aes(color = sex)) + geom_smooth(method = "lm", se = FALSE) + facet_wrap(~sex, ncol = 1)
+plt5 <- ggplot(df, aes(x = length, y = diameter)) +
+  geom_point(aes(color = sex)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~sex, ncol = 1)
 plt5
 ```
 
@@ -275,7 +282,18 @@ grid of plots.
 :::
 
 ```{r}
+df_quant <-
+  df %>%
+  select(!sex)
 
+df2 <- 
+  df %>%
+  select(rings)
+
+plt5 <- map2(df_quant, df2, ~ ggplot(df) +
+              geom_point(aes(x = rings, y = .x, color = sex)) + 
+               labs(x = "Rings", y = " "))
+cowplot::plot_grid(plotlist = plt5, labels = colnames(df_quant), ncol = 3, label_size = 9.5) 
 ```
 
 <br><br><br><br> <br><br><br><br> ---
